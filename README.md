@@ -173,6 +173,10 @@ Enjoy!
 
 ### Test Rest ###
 
+Install BDD:
+
+```sudo php app/console doctrine:schema:update --force```
+
 Launch test authentication interface:
 
 ```phpunit -c app src/Demo/AuthRestBundle/Tests/Controller```
