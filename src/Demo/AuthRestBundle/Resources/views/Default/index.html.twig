@@ -1,1 +1,9 @@
-Hello {{ name }}!
+LIST :
+<div>
+    <ul>
+        <li>logged in as <strong>{{ app.user ? app.user.username : 'Anonymous' }}</strong> - <a href="{{ path('logout') }}">Logout</a></li>
+    </ul>
+</div>
+<div>
+
+</div>
