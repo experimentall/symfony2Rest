@@ -1,0 +1,4 @@
+demo_auth_rest:
+    resource: "@DemoAuthRestBundle/Resources/config/routing.yml"
+    prefix:   /
+
