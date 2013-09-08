@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
+use Demo\AuthRestBundle\Entity\User;
+
 class DefaultController extends Controller
 {
     /**
@@ -13,7 +15,13 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('DemoAuthRestBundle:Default:index.html.twig');
+        $users = $this->getDoctrine()->getRepository('DemoAuthRestBundle:User')
+            ->findAll();
+
+        return $this->render(
+            'DemoAuthRestBundle:Default:index.html.twig',
+            array('users' => $users)
+        );
     }
 
 
@@ -33,5 +41,4 @@ class DefaultController extends Controller
             )
         );
     }
-
 }

@@ -5,5 +5,28 @@ LIST :
     </ul>
 </div>
 <div>
-
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        {% for user in users %}
+        <tbody>
+            <tr>
+                <td>{{ user.nom }}</td>
+                <td>{{ user.prenom }}</td>
+                <td>{{ user.email }}</td>
+            </tr>
+        </tbody>
+        {% else %}
+        <tbody>
+            <tr>
+                <td colspan="3">No user found!</td>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
 </div>

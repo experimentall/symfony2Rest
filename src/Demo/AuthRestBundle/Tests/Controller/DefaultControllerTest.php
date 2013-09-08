@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class DefaultControllerTest extends WebTestCase
 {
+
     public function testNotAuthenticated()
     {
         $client = static::createClient();
@@ -15,6 +16,7 @@ class DefaultControllerTest extends WebTestCase
 
         $this->assertTrue($crawler->filter('html:contains("LOGIN")')->count() > 0);
     }
+    
 
     public function testBadAuthentication()
     {
@@ -35,6 +37,7 @@ class DefaultControllerTest extends WebTestCase
         $this->assertTrue($crawler->filter('html:contains("Bad credentials")')->count() > 0);
     }
 
+
     public function testGoodAuthentication()
     {
         $client = static::createClient();
@@ -52,6 +55,7 @@ class DefaultControllerTest extends WebTestCase
 
         $this->assertTrue($crawler->filter('html:contains("LIST")')->count() > 0);
     }
+
 
     public function testLogout()
     {

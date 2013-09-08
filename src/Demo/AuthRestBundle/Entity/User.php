@@ -4,12 +4,31 @@ namespace Demo\AuthRestBundle\Entity;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Email;
 
 /**
  * @ORM\Entity
+ *
+ * @ExclusionPolicy("all")
  */
 class User implements UserInterface
 {
+    public static function loadValidatorMetadata(ClassMetadata $metadata)
+    {
+        $metadata->addPropertyConstraint('nom', new NotBlank());
+        $metadata->addPropertyConstraint('prenom', new NotBlank());
+        $metadata->addPropertyConstraint('password', new NotBlank());
+        $metadata->addPropertyConstraint('email', new NotBlank());
+        $metadata->addPropertyConstraint('email', new Email());
+    }
+
+
     /**
      * @ORM\Column(type="integer")
      * @ORM\Id
@@ -19,16 +38,25 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=64)
+     *
+     * @Expose
+     *
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=64)
+     *
+     * @Expose
+     *
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=128, unique=true)
+     *
+     * @Expose
+     *
      */
     private $email;
 

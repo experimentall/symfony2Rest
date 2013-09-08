@@ -11,3 +11,8 @@ login_check:
 
 logout:
     pattern:   /logout
+
+user:
+    type: rest
+    resource: Demo\AuthRestBundle\Controller\UserController
+    prefix: api
