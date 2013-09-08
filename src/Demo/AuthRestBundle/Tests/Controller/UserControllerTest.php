@@ -123,6 +123,7 @@ class UserControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        // new
         $client->request(
             'POST',
             '/api/user',
@@ -134,6 +135,8 @@ class UserControllerTest extends WebTestCase
             ),
             '{"nom": "nomTest", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
         );
+
+        // add
         $client->request(
             'POST',
             '/api/user',
@@ -175,6 +178,7 @@ class UserControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        // new
         $client->request(
             'POST',
             '/api/user',
@@ -186,6 +190,8 @@ class UserControllerTest extends WebTestCase
             ),
             '{"nom": "nomTest", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
         );
+
+        // update
         $client->request(
             'PUT',
             '/api/user',
@@ -196,6 +202,45 @@ class UserControllerTest extends WebTestCase
                 'HTTP_ACCEPT'  => 'application/json',
             ),
             '{"nom": "nomTestUpdate", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
+        );
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertTrue($client->getResponse()->headers->contains('Content-Type', 'application/json'));
+        $this->assertRegExp(
+            '/{"nom":"nomTestUpdate","prenom":"prenomTest","email":"userTest@test.org"}/',
+            $client->getResponse()->getContent()
+        );
+    }
+
+
+    public function testUpdateOneField()
+    {
+        $client = static::createClient();
+
+        // new
+        $client->request(
+            'POST',
+            '/api/user',
+            array(),
+            array(),
+            array(
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT'  => 'application/json',
+            ),
+            '{"nom": "nomTest", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
+        );
+
+        // update
+        $client->request(
+            'PUT',
+            '/api/user',
+            array(),
+            array(),
+            array(
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT'  => 'application/json',
+            ),
+            '{"email":"userTest@test.org", "nom": "nomTestUpdate"}'
         );
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -232,6 +277,7 @@ class UserControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        // new
         $client->request(
             'POST',
             '/api/user',
@@ -244,6 +290,7 @@ class UserControllerTest extends WebTestCase
             '{"nom": "nomTest", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
         );
 
+        // get
         $client->request(
             'POST',
             '/api/get/user',
@@ -269,6 +316,7 @@ class UserControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        // new
         $client->request(
             'POST',
             '/api/user',
@@ -281,6 +329,7 @@ class UserControllerTest extends WebTestCase
             '{"nom": "nomTest", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
         );
 
+        // delete
         $client->request(
             'DELETE',
             '/api/user',
@@ -301,6 +350,7 @@ class UserControllerTest extends WebTestCase
         );
     }
 
+
     public function testDeleteUserNotExist()
     {
         $client = static::createClient();
@@ -319,6 +369,127 @@ class UserControllerTest extends WebTestCase
 
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
         $this->assertTrue($client->getResponse()->headers->contains('Content-Type', 'application/json'));
+    }
+
+
+    public function testUpdateUserPasswordNotChange()
+    {
+        $client = static::createClient();
+
+        // new
+        $client->request(
+            'POST',
+            '/api/user',
+            array(),
+            array(),
+            array(
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT'  => 'application/json',
+            ),
+            '{"nom": "nomTest", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
+        );
+
+        // update
+        $client->request(
+            'PUT',
+            '/api/user',
+            array(),
+            array(),
+            array(
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT'  => 'application/json',
+            ),
+            '{"email":"userTest@test.org", "nom": "nomTestUpdate"}'
+        );
+
+        $client->request('GET', '/');
+        $crawler = $client->followRedirect();
+
+        $form = $crawler->selectButton('submit_login')->form();
+
+        $form['_username'] = 'userTest@test.org';
+        $form['_password'] = 'passTest';
+
+        $client->submit($form);
+        $crawler = $client->followRedirect();
+
+        $this->assertTrue($crawler->filter('html:contains("LIST")')->count() > 0);
+    }
+
+
+    public function testUpdateUserPasswordChange()
+    {
+        $client = static::createClient();
+
+        // new
+        $client->request(
+            'POST',
+            '/api/user',
+            array(),
+            array(),
+            array(
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT'  => 'application/json',
+            ),
+            '{"nom": "nomTest", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
+        );
+
+        // update
+        $client->request(
+            'PUT',
+            '/api/user',
+            array(),
+            array(),
+            array(
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT'  => 'application/json',
+            ),
+            '{"email":"userTest@test.org", "password": "newPassword"}'
+        );
+
+        $client->request('GET', '/');
+        $crawler = $client->followRedirect();
+
+        $form = $crawler->selectButton('submit_login')->form();
+
+        $form['_username'] = 'userTest@test.org';
+        $form['_password'] = 'newPassword';
+
+        $client->submit($form);
+        $crawler = $client->followRedirect();
+
+        $this->assertTrue($crawler->filter('html:contains("LIST")')->count() > 0);
+    }
+
+
+    public function testNewUserAndLogin()
+    {
+        $client = static::createClient();
+
+        $client->request(
+            'POST',
+            '/api/user',
+            array(),
+            array(),
+            array(
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT'  => 'application/json',
+            ),
+            '{"nom": "nomTest", "prenom": "prenomTest", "email": "userTest@test.org", "password": "passTest"}'
+        );
+
+        $client->request('GET', '/');
+        $crawler = $client->followRedirect();
+
+        $form = $crawler->selectButton('submit_login')->form();
+
+        $form['_username'] = 'userTest@test.org';
+        $form['_password'] = 'passTest';
+
+        $client->submit($form);
+        $crawler = $client->followRedirect();
+
+        $this->assertTrue($crawler->filter('html:contains("LIST")')->count() > 0);
     }
 
 }

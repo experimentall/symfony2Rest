@@ -36,12 +36,13 @@ class UserController extends Controller
     /**
      * Validate and add or update user form.
      *
-     * @param User  $entity     User instance.
-     * @param array $parameters Form submit parameters.
+     * @param User    $entity     User instance.
+     * @param array   $parameters Form submit parameters.
+     * @param boolean $encryptPwd Encrypt password on update if modified.
      *
      * @return Object
      */
-    protected function processForm(User $entity, $parameters)
+    protected function processForm(User $entity, $parameters, $encryptPwd=true)
     {
         $form = $this->createForm(new UserType(), $entity);
 
@@ -49,6 +50,9 @@ class UserController extends Controller
 
         if ($form->isValid())
         {
+            if ($encryptPwd)
+                $this->encryptPassword($entity);
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($entity);
             $em->flush();
@@ -59,6 +63,19 @@ class UserController extends Controller
         return array(
             'form' => $form,
         );
+    }
+
+    /**
+     * Encrypt user password.
+     *
+     * @param User $entity User instance.
+     */
+    protected function encryptPassword(User $entity)
+    {
+        $factory  = $this->get('security.encoder_factory');
+        $encoder  = $factory->getEncoder($entity);
+        $password = $encoder->encodePassword($entity->getPassword(), $entity->getSalt());
+        $entity->setPassword($password);
     }
 
     /**
@@ -100,10 +117,26 @@ class UserController extends Controller
      */
     public function putUserAction(Request $request)
     {
+        $encrypt = true;
+
         $parameters = json_decode($request->getContent(), true);
         $entity     = $this->getEntity($parameters['email']);
 
-        return $this->processForm($entity, $parameters);
+        if (!(isset($parameters['nom']) && $parameters['nom'] != ''))
+        {
+            $parameters['nom'] = $entity->getNom();
+        }
+        if (!(isset($parameters['prenom']) && $parameters['prenom'] != ''))
+        {
+            $parameters['prenom'] = $entity->getPrenom();
+        }
+        if (!(isset($parameters['password']) && $parameters['password'] != ''))
+        {
+            $parameters['password'] = $entity->getPassword();
+            $encrypt = false;
+        }
+
+        return $this->processForm($entity, $parameters, $encrypt);
     }
 
     /**

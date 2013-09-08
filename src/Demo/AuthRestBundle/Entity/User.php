@@ -191,9 +191,14 @@ class User implements UserInterface
      */
     public function setPassword($password)
     {
-        $this->password = $password;
-    
-        return $this;
+       // if (null === $password)
+       // {
+       //     return; 
+       // }
+
+       $this->password = $password;
+
+       return $this;
     }
 
     /**
@@ -205,4 +210,5 @@ class User implements UserInterface
     {
         return $this->id;
     }
+
 }

@@ -220,7 +220,7 @@ Fields validation:
 
   * nom: required
   * prenom: required
-  * email: required, valid email
+  * email: required, valid email [UNIQUE INDEX]
   * password: required
 
 
